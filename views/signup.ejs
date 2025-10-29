@@ -151,11 +151,11 @@
 <body>
     <div class="form-container">
         <p class="title">Register Here</p>
-        <form class="form" method="POST">
-            <input type="text" id="firstName" class="input" placeholder="First Name">
-            <input type="text" id="lastName" class="input" placeholder="Last Name">
-            <input type="email" id="email" class="input" placeholder="Email">
-            <input type="password" id="password" class="input" placeholder="Password">
+        <form class="form" action="/signup" method="post">
+            <input type="text" id="firstName" name="firstName" class="input" placeholder="First Name">
+            <input type="text" id="lastName" name="lastName" class="input" placeholder="Last Name">
+            <input type="email" id="email" name="email" class="input" placeholder="Email">
+            <input type="password" id="password" name="password" class="input" placeholder="Password">
             <button class="form-btn">Sign up</button>
         </form>
         <p class="sign-up-label">

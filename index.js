@@ -6,25 +6,53 @@ dotenv.config()
 const ejs = require("ejs")
 const mongoose = require("mongoose")
 const URI = process.env.MONGO_URI
-
 app.set("view engine", "ejs")
+const bcrypt = require("bcryptjs")
+const saltRounds = 10;
 
+
+
+app.use(express.urlencoded({extended: true}));
+app.use(express.json())
+// Connect to MongoDB
 mongoose.connect(URI)
-
 .then(()=>{
     console.log("connected to mongodb");
 }).catch((err)=>{
     console.log("Not connected", err);
 })
 
-// let userSchema = new mongoose.schema({
-//     firstName: {type:String, required:true},
-//     lastName: {type:String, required:true},
-//     email: {type:String, required:true},
-//     password: {type:String, required:true}
-// })
+// Schema
+let userSchema = new mongoose.Schema({
+    firstName: {
+        type:String, 
+        required: [true, "First name is required"],
+        match: [/^[A-Za-z]+$/, "First name must contain only letters"],
+        trim: true,
+    },
 
-// const userSchema = mongoose.model('user', userSchema)
+    lastName: {
+        type:String, 
+        required: [true, "Last name is required"],
+        match: [/^[A-Za-z]+$/, "Last name must contain only letters"],
+        trim: true,
+    },
+
+    email: {
+        type:String, 
+        required: [true, "Email is required"],
+        unique: [true, "Email has been taken, please choose another one"],
+        match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Please provide a valid email address"],
+        lowercase: true
+    },
+
+    password: {
+        type:String, 
+        required:true
+    },
+})
+
+const User = mongoose.model('user', userSchema)
 
 let allStudents = [
     {name: "John", age: 20, city: "New York"},
@@ -126,6 +154,52 @@ app.get("/signup", (req, res)=>{
     res.render("signup")
 })
 
+app.post("/signup", (req, res)=>{
+    const { firstName, lastName, email, password } = req.body
+    console.log(req.body)
+
+    // Step 1 is to validate strong password // Regex isMatch
+    const strongPasswordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!strongPasswordRegex.test(password)) {
+        return res.status(400).send(
+            "Password must be at least 8 characters long, contain uppercase, lowercase, a number, and a special character"
+        );
+    }
+
+    User.findOne({ email })
+        .then((existingUser) =>{
+            if (existingUser) {
+                res.status(400).send("Email already exists");
+                return Promise.reject("User already exists")
+            }
+
+            return bcrypt.hash(password, saltRounds);
+        })
+        .then((hashedPassword) => {
+            if (!hashedPassword) return;   // If user exists, skip this step, It is optional
+
+            // Step 4 is to Save new user
+            const newUser = new User ({
+                firstName,
+                lastName,
+                email,
+                password: hashedPassword //Store hashed password not the plain text password
+            });
+
+            return newUser.save();
+        })
+        .then((savedUser) =>{
+            if (!savedUser) return;  //If user exists, skip this step, it is also optional
+            console.log("User registered succesfully")
+            res.redirect("/signin")
+        })
+        .catch((err) =>{
+            if (err !== "User  already exists") {
+                console.error("Error saving user", err);
+                res.status(500).send("Internal Server Error")
+            }
+        });
+});
 
 
 app.listen(port, () => {
