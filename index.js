@@ -17,7 +17,7 @@ const cors = require("cors")
 
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "https://frontend-one-alpha-31.vercel.app",
     methods: "GET, POST, PUT, DELETE, PATCH",
     credentials: true
 }))
