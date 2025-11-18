@@ -152,9 +152,9 @@
 <body>
     <div class="form-container">
         <p class="title">Welcome back</p>
-        <form class="form">
-            <input type="email" class="input" placeholder="Email">
-            <input type="password" class="input" placeholder="Password">
+        <form class="form" action="/user/signin" method="post">
+            <input type="email" class="input" name="email" placeholder="Email">
+            <input type="password" class="input" name="password" placeholder="Password">
             <p class="page-link">
                 <span class="page-link-label">Forgot Password?</span>
             </p>
