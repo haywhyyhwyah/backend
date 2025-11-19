@@ -193,7 +193,16 @@ const postSignin = (req, res) => {
                         console.log(token);
 
 
-                        res.status(201).json({success: true, message: "User signed in Successfully"})
+                        res.status(201).json({
+                            success: true, 
+                            message: "User signed in Successfully",
+                            token,
+                            user:{
+                                email: user.email,
+                                firstName: user.firstName,
+                                lastName: user.lastName
+                            }
+                        });
                     } else {
                         console.log("Invalid password")
                         res.status(400).send("Invalid email or password")
